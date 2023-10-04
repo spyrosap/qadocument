@@ -8,6 +8,7 @@ from dotenv import find_dotenv, load_dotenv
 from langchain.retrievers import SVMRetriever
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import PyPDFLoader
 
 
 #load env variables 
@@ -20,13 +21,22 @@ def load_content(url) :
     data = loader.load()
     return data 
 
-data = load_content('https://www.growthunhinged.com/p/pleos-story-of-80-yoy-growth-on-the')
+def load_pdf(file) :
+    loader = PyPDFLoader(file)
+    pages = loader.load_and_split()
+    #print(pages[0])
+    return pages
+
+pdf_content = load_pdf('Florida-Standard-Residential-Lease-Agreement.pdf')
+
 
 
 #Split the content in chunks to be embedded into vectors
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-all_splits = text_splitter.split_documents(data)
+all_splits = text_splitter.split_documents(pdf_content)
+
+#print(all_splits)
 
 #create vectorstore
 vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
@@ -43,9 +53,7 @@ def answer(question) :
 
 
 
-answer("How did Pleo grow ?")
-
-
+answer("What is this contract saying ?")
 
 
 
