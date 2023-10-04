@@ -9,6 +9,9 @@ from langchain.retrievers import SVMRetriever
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 
 
 #load env variables 
@@ -53,7 +56,22 @@ def answer(question) :
 
 
 
-answer("What is this contract saying ?")
+#Set the API endpoint to ask the question 
+
+app = FastAPI()
+
+class Query(BaseModel):
+    query:str
+
+
+@app.post('/')
+def askDocument(query : Query):
+    query = query.query 
+    result = answer(query)
+    actual_result = answer['output']
+    return actual_result
+
+#answer("What is this contract saying ?")
 
 
 
